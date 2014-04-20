@@ -17,5 +17,5 @@ Installation
 ============
 
 1. Download and install [Prelude](https://github.com/bbatsov/prelude);
-2. Copy all files to the fold `~/.emacs.d/personal`;
+2. Copy `my-basic.el` and `matlab` to the fold `~/.emacs.d/personal`;
 3. Restart Emacs.
