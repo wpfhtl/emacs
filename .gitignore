@@ -4,4 +4,5 @@ old/
 *.eps
 *.mat
 aspell_feng
+aspell*
 .DS_Store
