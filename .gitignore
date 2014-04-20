@@ -3,5 +3,5 @@ old/
 *.mexmaci64
 *.eps
 *.mat
-aspell
+aspell_feng
 .DS_Store
