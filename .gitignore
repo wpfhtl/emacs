@@ -1,0 +1,7 @@
+old/
+*.mexa64
+*.mexmaci64
+*.eps
+*.mat
+tmp.txt
+.DS_Store
