@@ -11,7 +11,8 @@ In general, I use [Prelude](https://github.com/bbatsov/prelude) as my
 default Emacs configuration for keyboard shortcuts, Latex, C/C++,
 HTML/CSS, Python and Org.
 
-In addition, I use Emacs as my main editor and console for coding Matlab.
+In addition, I use Emacs as the main editor and shell for coding and
+running Matlab.
 
 Installation
 ============
