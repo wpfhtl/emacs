@@ -43,6 +43,7 @@
                         (mode . nxml-mode)
                         (mode . css-mode)))
                ("Lisp" (mode . emacs-lisp-mode))
+               ("Python" (mode . python-mode))
                ("Shell" (mode . sh-mode))
                ("Console" (name . "^\\*.*\\*$"))
                ))))
@@ -58,6 +59,9 @@
   '(define-key flyspell-mode-map (kbd "C-,") nil))
 (eval-after-load "flyspell"
   '(define-key flyspell-mode-map (kbd "C-;") nil))
+
+;; using ipython as the default python console
+(setq python-shell-interpreter "ipython")
 
 ;; latex-mode-hook
 (add-hook 'LaTeX-mode-hook
@@ -98,6 +102,11 @@
 ;; buffer-move
 (require 'buffer-move)
 
+;; python-mode-hook
+(defun my-python-mode-hook ()
+  (linum-mode t))
+(add-hook 'python-mode-hook 'my-python-mode-hook)
+
 (autoload 'matlab-mode "matlab" "Enter Matlab mode." t)
 (setq auto-mode-alist (cons '("\\.m$" . matlab-mode) auto-mode-alist))
 
@@ -110,7 +119,12 @@
 
 ;; matlab-shell-mode
 (autoload 'matlab-shell "matlab" "Interactive Matlab mode." t)
-(setq matlab-shell-command "/Applications/MATLAB.app/bin/matlab")
+(cond
+ ((string-equal system-type "darwin")
+  (setq matlab-shell-command "/Applications/MATLAB.app/bin/matlab"))
+ ((string-equal system-type "gnu/linux")
+  (setq matlab-shell-command "/usr/bin/matlab")))
+
 (setq matlab-shell-command-switches '("-nodesktop -nosplash"))
 
 (defun my-matlab-modify-date ()
