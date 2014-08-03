@@ -1,14 +1,14 @@
 Introduction
 ============
 
-This page contains my Emacs configuration.
-
-I use Emacs to do almost all the jobs, including
+I use Emacs as the main tool for most works, including
 - simulating shells for running Matlab, Python and Zsh
-- editing source file (e.g., Matlab, C/C++, Latex, Python, HTML, CSS)
+- editing all kinds of source codes (e.g., Matlab, C/C++, Latex, Python, HTML, CSS)
 - connecting server through SSH and running multiple processes via Screen
 - managing Git repositories
 - organizing folders and files
+
+This page contains my Emacs configuration.
 
 Emacs Build Choice
 ==================
@@ -25,6 +25,9 @@ Installation
 
 Matlab
 ======
-I barely use the default Matlab GUI interface. Instead, I run Matlab in Emacs.
+I barely use the default Matlab interface. Instead, I run Matlab in Emacs.
 
 To start the Matlab shell in Emacs, you could type `C-c m` using my Emacs configuration.
+
+SSH and Screen
+==============
