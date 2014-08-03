@@ -2,6 +2,7 @@
 ;;; Commentary:
 ;;; Code:
 (add-to-list 'load-path "~/.emacs.d/personal/matlab")
+(add-to-list 'load-path "~/.emacs.d/personal/evernote")
 
 (scroll-bar-mode -1)
 (delete-selection-mode 1)
@@ -60,9 +61,6 @@
 (eval-after-load "flyspell"
   '(define-key flyspell-mode-map (kbd "C-;") nil))
 
-;; using ipython as the default python console
-(setq python-shell-interpreter "ipython")
-
 ;; latex-mode-hook
 (add-hook 'LaTeX-mode-hook
           (lambda()
@@ -102,11 +100,6 @@
 ;; buffer-move
 (require 'buffer-move)
 
-;; python-mode-hook
-(defun my-python-mode-hook ()
-  (linum-mode t))
-(add-hook 'python-mode-hook 'my-python-mode-hook)
-
 (autoload 'matlab-mode "matlab" "Enter Matlab mode." t)
 (setq auto-mode-alist (cons '("\\.m$" . matlab-mode) auto-mode-alist))
 
@@ -127,6 +120,7 @@
 
 (setq matlab-shell-command-switches '("-nodesktop -nosplash"))
 
+;; Update the date in the comment automatically after changing the file.
 (defun my-matlab-modify-date ()
   (interactive)
   (save-excursion
@@ -152,8 +146,29 @@
 
 (add-hook 'before-save-hook 'my-matlab-save-hook)
 
-(require 'list-register)
-(global-set-key (kbd "C-x r v") 'list-register)
+;; using ipython as the default python console
+(setq python-shell-interpreter "ipython")
+(setq python-shell-interpreter-args "--pylab")
+
+;; python-mode-hook
+(defun my-python-mode-hook ()
+  (linum-mode t))
+(add-hook 'python-mode-hook 'my-python-mode-hook)
+
+;; python shell (remap up key)
+(define-key comint-mode-map (kbd "<up>") 'comint-previous-matching-input-from-input)
+
+;; python mode (save C-C C-p for other use)
+(eval-after-load "python"
+  '(define-key python-mode-map (kbd "C-c C-p") nil))
+
+;; (require 'list-register)
+;; (global-set-key (kbd "C-x r v") 'list-register)
+;; (require 'ein)
+;; (require 'request)
+
+;; w3m
+;; (require 'w3m-load)
 
 ; global key
 (global-set-key (kbd "C-;") 'comment-region)
@@ -167,6 +182,7 @@
 (global-set-key (kbd "<H-M-down>")   'buf-move-down)
 (global-set-key (kbd "<H-M-left>")   'buf-move-left)
 (global-set-key (kbd "<H-M-right>")  'buf-move-right)
+(global-set-key (kbd "C-c C-p") 'python-shell-switch-to-shell)
 
 (provide 'my-basic)
 ;;; my-basic.el ends here
