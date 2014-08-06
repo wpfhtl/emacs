@@ -1,12 +1,12 @@
 Introduction
 ============
 
-I use Emacs as the main tool for most works, including
-- simulating shells for running Matlab, Python and Zsh
-- editing all kinds of source codes (e.g., Matlab, C/C++, Latex, Python, HTML, CSS)
-- connecting server through SSH and running multiple processes via Screen
-- managing Git repositories
-- organizing folders and files
+I use Emacs as the main tool for most of my work, including
+- organizing folders and documents;
+- editing all kinds of source codes (e.g., Matlab, C/C++, Latex, Python, HTML, CSS);
+- simulating shells for running Matlab, Python and Zsh;
+- connecting server through SSH and running multiple processes via Screen;
+- managing Git repositories.
 
 This page contains my Emacs configuration.
 

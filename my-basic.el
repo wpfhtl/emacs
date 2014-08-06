@@ -13,6 +13,13 @@
 (server-start)
 (setq kill-buffer-query-functions nil)
 
+(setq doc-view-resolution 800)
+
+(require 'package)
+(package-initialize)
+(add-to-list 'package-archives
+             '("marmalade" . "http://marmalade-repo.org/packages/") t)
+
 ;; option key
 (setq mac-option-modifier 'hyper)
 
@@ -115,7 +122,7 @@
 (cond
  ((string-equal system-type "darwin")
   (setq matlab-shell-command "/Applications/MATLAB.app/bin/matlab"))
- ((string-equal system-type "gnu/linux")
+  ((string-equal system-type "gnu/linux")
   (setq matlab-shell-command "/usr/bin/matlab")))
 
 (setq matlab-shell-command-switches '("-nodesktop -nosplash"))
@@ -162,18 +169,66 @@
 (eval-after-load "python"
   '(define-key python-mode-map (kbd "C-c C-p") nil))
 
-;; (require 'list-register)
-;; (global-set-key (kbd "C-x r v") 'list-register)
-;; (require 'ein)
-;; (require 'request)
+;; line timer
+(require 'mode-line-timer)
 
-;; w3m
-;; (require 'w3m-load)
+;; org todo key-words
+(setq org-todo-keywords '((sequence "TODO" "DOING" "RUNNING" "|" "DONE" "FINISH")))
+
+;; key for switching between key-words
+(eval-after-load "org"
+  '(progn
+     (define-prefix-command 'org-todo-state-map)
+     (define-key org-mode-map "\M-o" 'org-todo-state-map)
+     (define-key org-todo-state-map "t"
+       #'(lambda nil (interactive) (org-todo "TODO")))
+     (define-key org-todo-state-map "i"
+       #'(lambda nil (interactive) (org-todo "DOING")))
+     (define-key org-todo-state-map "d"
+       #'(lambda nil (interactive) (org-todo "DONE")))
+     (define-key org-todo-state-map "f"
+       #'(lambda nil (interactive) (org-todo "FINISH")))
+     (define-key org-todo-state-map "r"
+       #'(lambda nil (interactive) (org-todo "RUNNING")))))
+
+;; org key
+(defun my-org-mode-keys ()
+  "my keybindings for org-mode"
+  (define-key org-mode-map (kbd "<S-up>") 'windmove-up)
+  (define-key org-mode-map (kbd "<S-down>") 'windmove-down)
+  (define-key org-mode-map (kbd "<S-left>") 'windmove-left)
+  (define-key org-mode-map (kbd "<S-right>") 'windmove-right)
+  (define-key org-mode-map (kbd "<H-up>") 'org-shiftup)
+  (define-key org-mode-map (kbd "<H-down>") 'org-shiftdown)
+  (define-key org-mode-map (kbd "<H-left>") 'org-shiftleft)
+  (define-key org-mode-map (kbd "<H-right>") 'org-shiftright))
+(add-hook 'org-mode-hook 'my-org-mode-keys)
+
+;; initial visibility for org file
+(setq org-startup-folded nil)
+
+;; my key-binding in prelude mode
+(defun my-prelude-mode-keys ()
+  "my keybindings for prelude-mode"
+  (define-key prelude-mode-map (kbd "M-o") nil))
+(add-hook 'prelude-mode-hook 'my-prelude-mode-keys)
+
+;; multi-term
+(require 'multi-term)
+
+;; my prefix key
+(define-prefix-command 'my-key-map)
+(global-set-key (kbd "M-m") 'my-key-map)
+(define-key my-key-map (kbd "l") 'matlab-shell)
+(define-key my-key-map (kbd "p") 'python-shell-switch-to-shell)
+(define-key my-key-map (kbd "m") 'multi-term)
+(define-key my-key-map (kbd "n") 'multi-term-next)
+(define-key my-key-map (kbd "t") 'mode-line-timer-start)
+(define-key my-key-map (kbd "s") 'prelude-googles)
 
 ; global key
 (global-set-key (kbd "C-;") 'comment-region)
 (global-set-key (kbd "C-:") 'uncomment-region)
-(global-set-key (kbd "C-c m") 'matlab-shell)
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
@@ -182,7 +237,6 @@
 (global-set-key (kbd "<H-M-down>")   'buf-move-down)
 (global-set-key (kbd "<H-M-left>")   'buf-move-left)
 (global-set-key (kbd "<H-M-right>")  'buf-move-right)
-(global-set-key (kbd "C-c C-p") 'python-shell-switch-to-shell)
 
 (provide 'my-basic)
 ;;; my-basic.el ends here
