@@ -2,7 +2,6 @@
 ;;; Commentary:
 ;;; Code:
 (add-to-list 'load-path "~/.emacs.d/personal/matlab")
-(add-to-list 'load-path "~/.emacs.d/personal/evernote")
 
 (scroll-bar-mode -1)
 (delete-selection-mode 1)
@@ -12,13 +11,13 @@
 (setq-default truncate-lines -1)
 (server-start)
 (setq kill-buffer-query-functions nil)
-
 (setq doc-view-resolution 800)
 
 (require 'package)
 (package-initialize)
 (add-to-list 'package-archives
              '("marmalade" . "http://marmalade-repo.org/packages/") t)
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
 
 ;; option key
 (setq mac-option-modifier 'hyper)
@@ -39,6 +38,9 @@
       (quote (("default"
                ("Dired" (mode . dired-mode))
                ("Matlab" (mode . matlab-mode))
+               ("Org" (or
+                       (mode . org-mode)
+                       (mode . markdown-mode)))
                ("C++" (or
                        (mode . c-mode)
                        (mode . c++-mode)))
@@ -60,7 +62,7 @@
              (ibuffer-auto-mode 1)
              (ibuffer-switch-to-saved-filter-groups "default")))
 
-;; disable key binding C-.
+;; disable key binding in flyspell
 (eval-after-load "flyspell"
   '(define-key flyspell-mode-map (kbd "C-.") nil))
 (eval-after-load "flyspell"
@@ -169,11 +171,16 @@
 (eval-after-load "python"
   '(define-key python-mode-map (kbd "C-c C-p") nil))
 
-;; line timer
-(require 'mode-line-timer)
+;; org output
+;; (load "~/.emacs.d/personal/org-export-generic.el")
+;; (load "~/.emacs.d/personal/org-export.el")
+;; (require 'org-export)
+;; (require 'org-export-generic)
+;; (eval-after-load "org"
+;;   '(require 'ox-md nil t))
 
 ;; org todo key-words
-(setq org-todo-keywords '((sequence "TODO" "DOING" "RUNNING" "|" "DONE" "FINISH")))
+(setq org-todo-keywords '((sequence "TODO" "DOING" "CANCELED" "|" "DONE" "FINISH")))
 
 ;; key for switching between key-words
 (eval-after-load "org"
@@ -182,14 +189,14 @@
      (define-key org-mode-map "\M-o" 'org-todo-state-map)
      (define-key org-todo-state-map "t"
        #'(lambda nil (interactive) (org-todo "TODO")))
+     (define-key org-todo-state-map "c"
+       #'(lambda nil (interactive) (org-todo "CANCELED")))
      (define-key org-todo-state-map "i"
        #'(lambda nil (interactive) (org-todo "DOING")))
      (define-key org-todo-state-map "d"
        #'(lambda nil (interactive) (org-todo "DONE")))
      (define-key org-todo-state-map "f"
-       #'(lambda nil (interactive) (org-todo "FINISH")))
-     (define-key org-todo-state-map "r"
-       #'(lambda nil (interactive) (org-todo "RUNNING")))))
+       #'(lambda nil (interactive) (org-todo "FINISH")))))
 
 ;; org key
 (defun my-org-mode-keys ()
@@ -215,6 +222,30 @@
 
 ;; multi-term
 (require 'multi-term)
+(defun my-term-mode-keys ()
+  "my keybindings for term-mode"
+  (define-key term-mode-map (kbd "C-x C-c") nil)
+  (define-key term-mode-map (kbd "C-a") nil))
+(add-hook 'term-mode-hook 'my-term-mode-keys)
+(setq multi-term-buffer-name "term"
+      multi-term-program "/bin/zsh")
+
+;; search engine
+(prelude-install-search-engine "googles" "http://scholar.google.com/scholar?q=" "Google Scholar: ")
+(prelude-install-search-engine "dblp" "http://www.dblp.org/search/index.php#query=" "DBLP: ")
+
+;; sync Org files with evernote through geeknote API every 30 mins
+(defun geeknote-sync ()
+  (interactive)
+  (eshell-command
+   (format "python ~/Code/script/geeknote/gnsync.py --path ~/Code/org --format markdown --logpath ~/Code/script/geeknote/geeknote.log --notebook Emacs")))
+(run-with-timer 0 (* 30 60) 'geeknote-sync)
+
+;; timebar (30 mins counter down)
+(defun timebar-run ()
+  (interactive)
+  (eshell-command
+   (format "~/Code/script/core/timebar -d 1800")))
 
 ;; my prefix key
 (define-prefix-command 'my-key-map)
@@ -223,8 +254,11 @@
 (define-key my-key-map (kbd "p") 'python-shell-switch-to-shell)
 (define-key my-key-map (kbd "m") 'multi-term)
 (define-key my-key-map (kbd "n") 'multi-term-next)
-(define-key my-key-map (kbd "t") 'mode-line-timer-start)
+(define-key my-key-map (kbd "T") 'mode-line-timer-start)
+(define-key my-key-map (kbd "t") 'timebar-run)
+(define-key my-key-map (kbd "g") 'prelude-google)
 (define-key my-key-map (kbd "s") 'prelude-googles)
+(define-key my-key-map (kbd "d") 'prelude-dblp)
 
 ; global key
 (global-set-key (kbd "C-;") 'comment-region)
@@ -233,6 +267,8 @@
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+(global-set-key (kbd "<M-up>")     'move-text-up)
+(global-set-key (kbd "<M-down>")   'move-text-down)
 (global-set-key (kbd "<H-M-up>")     'buf-move-up)
 (global-set-key (kbd "<H-M-down>")   'buf-move-down)
 (global-set-key (kbd "<H-M-left>")   'buf-move-left)
