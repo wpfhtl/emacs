@@ -1,26 +1,23 @@
-Introduction
-============
-
+# Introduction
 I use Emacs as the main tool for most of my work, including
 - organizing folders and documents;
-- editing all kinds of source codes (e.g., Matlab, C/C++, Latex, Python, HTML, CSS);
+- editing all kinds of source codes (e.g., _Matlab_, _C/C++_, _Latex_, _Python_, _HTML_, _CSS_);
 - simulating shells for running Matlab, Python and Zsh;
 - connecting server through SSH and running multiple processes via Screen;
 - managing Git repositories.
 
 This page contains my Emacs configuration.
 
-Emacs Build Choice
-==================
+# Emacs Build Choice
 I recommend to use the Emacs version from
 [Railwaycat's Port](https://github.com/railwaycat/emacs-mac-port),
 which provides a native GUI support for latest Mac OSX.
 
-Installation
-============
+# Installation
 1. Download and install [Prelude](https://github.com/bbatsov/prelude) as the default Emacs configuration;
-2. Copy `my-basic.el` and `matlab/` to the fold `~/.emacs.d/personal`;
-3. Restart Emacs.
+2. Install the Emacs packages, `multiple-cursor`, `buffer-move`, and `auctex` via `M-x package-install`;
+3. Copy `my-basic.el` and `matlab/` to the fold `~/.emacs.d/personal`;
+4. Restart Emacs.
 
 
 Matlab
