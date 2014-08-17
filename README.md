@@ -1,11 +1,11 @@
 # Introduction
 Everyday, I use Emacs as the universal tool for most of my work, such as
-- editing all kinds of source codes (e.g., *Matlab*, *C/C++*, *Latex*, *Python*, *Html*, *Css*);
-- simulating shells for running *Matlab*, *Python* and *Zsh*;
-- connecting server through *SSH* and running multiple processes via *Screen*;
+- editing all kinds of source codes (e.g., **Matlab**, **C/C++**, **Latex**, **Python**, **Html**, **Css**);
+- simulating shells for running **Matlab**, **Python** and **Zsh**;
+- connecting server through **SSH** and running multiple processes via **Screen**;
 - organizing folders and documents on my Mac;
-- taking notes (e.g., *Org*) and synchronizing them with *Evernote*;
-- managing *Git* repositories.
+- taking notes (e.g., **Org**) and synchronizing them with **Evernote**;
+- managing **Git** repositories.
 
 This page contains my Emacs configuration.
 
