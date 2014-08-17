@@ -1,5 +1,5 @@
 # Introduction
-Everyday, I use Emacs as the main tool for most of my work, such as
+Everyday, I use Emacs as the uniform tool for most of my work, such as
 - organizing folders and documents on my Mac;
 - editing all kinds of source codes (e.g., _Matlab_, _C/C++_, _Latex_, _Python_, _HTML_, _CSS_);
 - simulating shells for running _Matlab_, _Python_ and _Zsh_;
