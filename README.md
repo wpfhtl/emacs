@@ -1,5 +1,5 @@
 # Introduction
-Everyday, I use Emacs as the universal tool to do most work, such as
+Everyday, I use Emacs as the universal tool to do most work, including
 - editing all kinds of source codes (e.g., **Matlab**, **C/C++**, **Latex**, **Python**, **Html**, **Css**);
 - simulating shells for running **Matlab**, **Python** and **Zsh**;
 - connecting server through **SSH** and running multiple processes via **Screen**;
