@@ -10,8 +10,8 @@ Everyday, I use Emacs as the universal tool to do most work, including
 The reason I like Emacs is very simple: **being focused and
 productive**. Most time I have only two softwares running, **Spotify**
 for playing music and **Emacs** for working. Always staying in a
-single Emacs environment can largely save your time in switching
-between different softwares and reducing the possibility of being
+single Emacs environment can largely save your time in learning the
+use of different softwares and reducing the possibility of being
 distracted by other information (e.g., Facebook, Email, News,
 Youtube). In addition, you can stick with the same group of key
 shortcuts to improve your work-flows for different tasks.
