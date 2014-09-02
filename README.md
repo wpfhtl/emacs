@@ -10,8 +10,8 @@ Everyday, I use Emacs as the universal tool to do most work, including
 The reason I like Emacs is very simple: **being focused and
 productive**. Most time I have only two softwares running, **Spotify**
 for playing music and **Emacs** for working. Always staying in a
-single Emacs environment can largely save your time in learning the
-use of different softwares and reducing the possibility of being
+single Emacs environment can largely save your time in switching
+between different softwares and reducing the possibility of being
 distracted by other information (e.g., Facebook, Email, News,
 Youtube). Within Emacs, you can develop your favorite work-flow and
 stick with the same group of key shortcuts for different tasks.
@@ -26,8 +26,7 @@ which provides a native GUI support for latest Mac OSX.
 
 # Installation
 1. Download and install [Prelude](https://github.com/bbatsov/prelude) as the default Emacs configuration;
-2. Install the packages, `multiple-cursor`, `buffer-move`, and `auctex` via `M-x package-install`;
-3. Copy `my-basic.el` and `matlab/` to the fold `~/.emacs.d/personal`;
+2. Copy `my-basic.el` and `matlab/` to the fold `~/.emacs.d/personal`;
 
 # Matlab
 I barely use the default Matlab user interface. Instead, I run Matlab in Emacs.

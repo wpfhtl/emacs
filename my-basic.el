@@ -6,12 +6,14 @@
 (scroll-bar-mode -1)
 (delete-selection-mode 1)
 (setq frame-title-format '((buffer-file-name "%f" (dired-directory dired-directory "%b"))))
-(require 'multiple-cursors)
 (desktop-save-mode 1)
 (setq-default truncate-lines -1)
 (server-start)
 (setq kill-buffer-query-functions nil)
 (setq doc-view-resolution 800)
+
+;; multiple-cursor
+(prelude-require-package 'multiple-cursors)
 
 (require 'package)
 (package-initialize)
@@ -22,8 +24,13 @@
 ;; option key
 (setq mac-option-modifier 'hyper)
 
-;; path
-(setq exec-path (append exec-path '("/usr/local/bin" "/usr/texbin")))
+;; helm-swoop
+(require 'helm-swoop)
+
+;; multi-file
+(require 'multifiles)
+
+;;(setq exec-path (append exec-path '("/usr/local/bin" "/usr/texbin")))
 (setenv "PATH"
         (concat
          "/usr/local/bin" ":" "/usr/texbin" ":" (getenv "PATH")))
@@ -106,8 +113,16 @@
           (message "Deleted file %s" filename)
           (kill-buffer))))))
 
+;; (defun my-search-bib-name (name)
+;;   "Search in the bibfile"
+;;   (interactive "name:")
+;;   (isearch-forward-regexp name))
+
 ;; buffer-move
-(require 'buffer-move)
+(prelude-require-package 'buffer-move)
+
+;; auctex
+(prelude-require-package 'auctex)
 
 (autoload 'matlab-mode "matlab" "Enter Matlab mode." t)
 (setq auto-mode-alist (cons '("\\.m$" . matlab-mode) auto-mode-alist))
@@ -146,6 +161,24 @@
             (delete-region pt1 pt2)
             (insert (format-time-string time-format (current-time))))
         (message "modify xxx not found")))))
+
+;; Update the date in the comment automatically after changing the file.
+(defun my-matlab-create-date ()
+  (interactive)
+  (save-excursion
+    (let ((time-format "%m-%d-%Y") (pt1) (pt2))
+      (goto-char (point-min))
+      (setq pt1 (search-forward "%   create" nil t))
+      (if pt1
+          (progn
+            (message "done")
+            (search-forward "gmail.com), ")
+            (setq pt1 (point))
+            (end-of-line)
+            (setq pt2 (point))
+            (delete-region pt1 pt2)
+            (insert (format-time-string time-format (current-time))))
+        (message "create xxx not found")))))
 
 (defun my-matlab-save-hook ()
   (if (eq major-mode 'matlab-mode)
@@ -238,7 +271,7 @@
 (defun geeknote-sync ()
   (interactive)
   (eshell-command
-   (format "python ~/Code/script/geeknote/gnsync.py --path ~/Code/org --format markdown --logpath ~/Code/script/geeknote/geeknote.log --notebook Emacs")))
+   (format "python ~/Code/script/geeknote/gnsync.py --mask \\*.md --path ~/Code/org --format markdown --logpath ~/Code/script/geeknote/geeknote.log --notebook Emacs")))
 (run-with-timer 0 (* 30 60) 'geeknote-sync)
 
 ;; timebar (30 mins counter down)
@@ -246,6 +279,10 @@
   (interactive)
   (eshell-command
    (format "~/Code/script/core/timebar -d 1800")))
+
+;; my macro
+(fset 'last-kbd-macro
+      [?\C-s ?\[ ?2 ?0 ?\C-a ?* ?* ?  ?\C-e ?\C-f ?\C-  ?\C-s ?\[ ?2 ?\C-a ?\C-p ?\C-p ?\S-\C-c ?\S-\C-c ?\M-d ?- ?  ?\[ ?X ?\] return ?\C-e])
 
 ;; my prefix key
 (define-prefix-command 'my-key-map)
@@ -259,20 +296,27 @@
 (define-key my-key-map (kbd "g") 'prelude-google)
 (define-key my-key-map (kbd "s") 'prelude-googles)
 (define-key my-key-map (kbd "d") 'prelude-dblp)
+(define-key my-key-map (kbd "h") 'helm-swoop)
+(define-key my-key-map (kbd "i") 'mf/mirror-region-in-multifile)
+(define-key my-key-map (kbd "b") 'helm-mini)
+(define-key my-key-map (kbd "q") 'last-kbd-macro)
+(define-key my-key-map (kbd "c") 'my-matlab-create-date)
 
 ; global key
+(global-set-key (kbd "<f5>") 'kmacro-set-counter)
 (global-set-key (kbd "C-;") 'comment-region)
 (global-set-key (kbd "C-:") 'uncomment-region)
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
-(global-set-key (kbd "<M-up>")     'move-text-up)
-(global-set-key (kbd "<M-down>")   'move-text-down)
-(global-set-key (kbd "<H-M-up>")     'buf-move-up)
-(global-set-key (kbd "<H-M-down>")   'buf-move-down)
-(global-set-key (kbd "<H-M-left>")   'buf-move-left)
-(global-set-key (kbd "<H-M-right>")  'buf-move-right)
+(global-set-key (kbd "<M-up>") 'move-text-up)
+(global-set-key (kbd "<M-down>") 'move-text-down)
+(global-set-key (kbd "<H-M-up>") 'buf-move-up)
+(global-set-key (kbd "<H-M-down>") 'buf-move-down)
+(global-set-key (kbd "<H-M-left>") 'buf-move-left)
+(global-set-key (kbd "<H-M-right>") 'buf-move-right)
+(global-set-key (kbd "M-x") 'helm-M-x)
 
 (provide 'my-basic)
 ;;; my-basic.el ends here
