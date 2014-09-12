@@ -2,6 +2,7 @@
 ;;; Commentary:
 ;;; Code:
 (add-to-list 'load-path "~/.emacs.d/personal/matlab")
+(add-to-list 'load-path "~/.emacs.d/personal/smart-mode-line")
 
 (scroll-bar-mode -1)
 (delete-selection-mode 1)
@@ -10,11 +11,14 @@
 (setq-default truncate-lines -1)
 (server-start)
 (setq kill-buffer-query-functions nil)
+
+;; PDF->JPG resolution
 (setq doc-view-resolution 800)
 
 ;; multiple-cursor
 (prelude-require-package 'multiple-cursors)
 
+;; package
 (require 'package)
 (package-initialize)
 (add-to-list 'package-archives
@@ -28,13 +32,21 @@
 (require 'helm-swoop)
 
 ;; multi-file
-(require 'multifiles)
+(prelude-require-package 'multifiles)
 
-;;(setq exec-path (append exec-path '("/usr/local/bin" "/usr/texbin")))
+;; environment variables
 (setenv "PATH"
         (concat
          "/usr/local/bin" ":" "/usr/texbin" ":" (getenv "PATH")))
-(setq ispell-program-name "/opt/local/bin/aspell")
+(setenv "PYTHONPATH"
+        (concat
+         "/usr/local/lib/python2.7/site-packages" ":" (getenv "PYTHONPATH")))
+(setenv "DYLD_FALLBACK_LIBRARY_PATH"
+        (concat
+         "/usr/local/cuda/lib" ":" (getenv "HOME") "/anaconda/lib:/usr/local/lib:/usr/lib"))
+
+;; ispell
+(setq ispell-program-name "/usr/local/bin/aspell")
 
 ;; dired
 (setq dired-listing-switches "-alh")
@@ -86,7 +98,7 @@
 (add-hook 'latex-mode-hook 'turn-on-reftex)
 (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
 (setq reftex-plug-into-auctex t)
-(load "preview.el" nil t t)
+;; (load "preview.el" nil t t)
 
 ;; read in PDF
 (custom-set-variables
@@ -101,6 +113,7 @@
             ;; (output-pdf "Preview")
            (output-html "xdg-open")))))
 
+;; delete a file but ask for sure
 (defun my-delete-file-and-buffer ()
   "Kill the current buffer and deletes the file it is visiting."
   (interactive)
@@ -113,17 +126,13 @@
           (message "Deleted file %s" filename)
           (kill-buffer))))))
 
-;; (defun my-search-bib-name (name)
-;;   "Search in the bibfile"
-;;   (interactive "name:")
-;;   (isearch-forward-regexp name))
-
 ;; buffer-move
 (prelude-require-package 'buffer-move)
 
 ;; auctex
 (prelude-require-package 'auctex)
 
+;; matlab
 (autoload 'matlab-mode "matlab" "Enter Matlab mode." t)
 (setq auto-mode-alist (cons '("\\.m$" . matlab-mode) auto-mode-alist))
 
@@ -141,10 +150,9 @@
   (setq matlab-shell-command "/Applications/MATLAB.app/bin/matlab"))
   ((string-equal system-type "gnu/linux")
   (setq matlab-shell-command "/usr/bin/matlab")))
-
 (setq matlab-shell-command-switches '("-nodesktop -nosplash"))
 
-;; Update the date in the comment automatically after changing the file.
+;; update modifying date field in the comment area
 (defun my-matlab-modify-date ()
   (interactive)
   (save-excursion
@@ -162,7 +170,7 @@
             (insert (format-time-string time-format (current-time))))
         (message "modify xxx not found")))))
 
-;; Update the date in the comment automatically after changing the file.
+;; update creating date in the comment area
 (defun my-matlab-create-date ()
   (interactive)
   (save-excursion
@@ -185,12 +193,12 @@
       (progn
         (message "%s is matlab-mode" (buffer-file-name))
         (my-matlab-modify-date))))
-
 (add-hook 'before-save-hook 'my-matlab-save-hook)
 
 ;; using ipython as the default python console
 (setq python-shell-interpreter "ipython")
 (setq python-shell-interpreter-args "--pylab")
+;; (setq py-shell-local-path "/usr/local/lib" py-use-local-default t)
 
 ;; python-mode-hook
 (defun my-python-mode-hook ()
@@ -250,11 +258,17 @@
 ;; my key-binding in prelude mode
 (defun my-prelude-mode-keys ()
   "my keybindings for prelude-mode"
-  (define-key prelude-mode-map (kbd "M-o") nil))
+  (define-key prelude-mode-map (kbd "M-o") nil)
+  (define-key prelude-mode-map (kbd "<M-S-up>") nil)
+  (define-key prelude-mode-map (kbd "<M-S-down>") nil)
+  (define-key prelude-mode-map (kbd "<C-S-up>") nil)
+  (define-key prelude-mode-map (kbd "<C-S-down>") nil)
+)
 (add-hook 'prelude-mode-hook 'my-prelude-mode-keys)
 
 ;; multi-term
-(require 'multi-term)
+(prelude-require-package 'multi-term)
+
 (defun my-term-mode-keys ()
   "my keybindings for term-mode"
   (define-key term-mode-map (kbd "C-x C-c") nil)
@@ -267,12 +281,12 @@
 (prelude-install-search-engine "googles" "http://scholar.google.com/scholar?q=" "Google Scholar: ")
 (prelude-install-search-engine "dblp" "http://www.dblp.org/search/index.php#query=" "DBLP: ")
 
-;; sync Org files with evernote through geeknote API every 30 mins
-(defun geeknote-sync ()
-  (interactive)
-  (eshell-command
-   (format "python ~/Code/script/geeknote/gnsync.py --mask \\*.md --path ~/Code/org --format markdown --logpath ~/Code/script/geeknote/geeknote.log --notebook Emacs")))
-(run-with-timer 0 (* 30 60) 'geeknote-sync)
+;; sync Org files with evernote through geeknote API every 2 hours
+;; (defun geeknote-sync ()
+;;   (interactive)
+;;   (eshell-command
+;;    (format "python ~/Code/script/geeknote/gnsync.py --mask \\*.md --path ~/Code/org --format markdown --logpath ~/Code/script/geeknote/geeknote.log --notebook Emacs")))
+;; (run-with-timer 0 (* 120 60) 'geeknote-sync)
 
 ;; timebar (30 mins counter down)
 (defun timebar-run ()
@@ -284,7 +298,21 @@
 (fset 'last-kbd-macro
       [?\C-s ?\[ ?2 ?0 ?\C-a ?* ?* ?  ?\C-e ?\C-f ?\C-  ?\C-s ?\[ ?2 ?\C-a ?\C-p ?\C-p ?\S-\C-c ?\S-\C-c ?\M-d ?- ?  ?\[ ?X ?\] return ?\C-e])
 
-;; my prefix key
+;; powerline
+(prelude-require-package 'powerline)
+(powerline-default-theme)
+;; (setq mode-line-format nil)
+
+;; smart-mode-line
+;; (require 'smart-mode-line)
+;; (require 'rich-minority)
+;; (rich-minority-mode 1)
+;; (setq rm-blacklist (list "company" "Projectile"))
+;; (sml/setup)
+
+(setq request-backend 'url-retrieve)
+
+;; my key (M-m)
 (define-prefix-command 'my-key-map)
 (global-set-key (kbd "M-m") 'my-key-map)
 (define-key my-key-map (kbd "l") 'matlab-shell)
@@ -293,7 +321,7 @@
 (define-key my-key-map (kbd "n") 'multi-term-next)
 (define-key my-key-map (kbd "T") 'mode-line-timer-start)
 (define-key my-key-map (kbd "t") 'timebar-run)
-(define-key my-key-map (kbd "g") 'prelude-google)
+(define-key my-key-map (kbd "g") 'rgrep)
 (define-key my-key-map (kbd "s") 'prelude-googles)
 (define-key my-key-map (kbd "d") 'prelude-dblp)
 (define-key my-key-map (kbd "h") 'helm-swoop)
@@ -301,6 +329,7 @@
 (define-key my-key-map (kbd "b") 'helm-mini)
 (define-key my-key-map (kbd "q") 'last-kbd-macro)
 (define-key my-key-map (kbd "c") 'my-matlab-create-date)
+(define-key my-key-map (kbd "f") 'find-name-dired)
 
 ; global key
 (global-set-key (kbd "<f5>") 'kmacro-set-counter)
