@@ -2,8 +2,8 @@
 ;;; Commentary:
 ;;; Code:
 (add-to-list 'load-path "~/.emacs.d/personal/matlab")
-(add-to-list 'load-path "~/.emacs.d/personal/smart-mode-line")
 
+;; basic interface setting
 (scroll-bar-mode -1)
 (delete-selection-mode 1)
 (setq frame-title-format '((buffer-file-name "%f" (dired-directory dired-directory "%b"))))
@@ -11,6 +11,7 @@
 (setq-default truncate-lines -1)
 (server-start)
 (setq kill-buffer-query-functions nil)
+(setq mac-option-modifier 'hyper)
 
 ;; PDF->JPG resolution
 (setq doc-view-resolution 800)
@@ -21,12 +22,8 @@
 ;; package
 (require 'package)
 (package-initialize)
-(add-to-list 'package-archives
-             '("marmalade" . "http://marmalade-repo.org/packages/") t)
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t)
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
-
-;; option key
-(setq mac-option-modifier 'hyper)
 
 ;; helm-swoop
 (require 'helm-swoop)
@@ -36,14 +33,11 @@
 
 ;; environment variables
 (setenv "PATH"
-        (concat
-         "/usr/local/bin" ":" "/usr/texbin" ":" (getenv "PATH")))
+        (concat "/usr/local/bin" ":" "/usr/texbin" ":" (getenv "PATH")))
 (setenv "PYTHONPATH"
-        (concat
-         "/usr/local/lib/python2.7/site-packages" ":" (getenv "PYTHONPATH")))
+        (concat "/usr/local/lib/python2.7/site-packages" ":" (getenv "PYTHONPATH")))
 (setenv "DYLD_FALLBACK_LIBRARY_PATH"
-        (concat
-         "/usr/local/cuda/lib" ":" (getenv "HOME") "/anaconda/lib:/usr/local/lib:/usr/lib"))
+        (concat "/usr/local/cuda/lib" ":" (getenv "HOME") "/anaconda/lib:/usr/local/lib:/usr/lib"))
 
 ;; ispell
 (setq ispell-program-name "/usr/local/bin/aspell")
@@ -104,7 +98,6 @@
 (custom-set-variables
  '(LaTeX-command "latex -synctex=1")
  '(TeX-view-program-list
-   ;; (quote (("Preview" "open -a Preview.app %o"))))
    (quote (("Skim" "/Applications/Skim.app/Contents/SharedSupport/displayline -r %n %o %b"))))
  '(TeX-view-program-selection
    (quote (((output-dvi style-pstricks) "dvips and gv")
@@ -198,7 +191,6 @@
 ;; using ipython as the default python console
 (setq python-shell-interpreter "ipython")
 (setq python-shell-interpreter-args "--pylab")
-;; (setq py-shell-local-path "/usr/local/lib" py-use-local-default t)
 
 ;; python-mode-hook
 (defun my-python-mode-hook ()
@@ -211,14 +203,6 @@
 ;; python mode (save C-C C-p for other use)
 (eval-after-load "python"
   '(define-key python-mode-map (kbd "C-c C-p") nil))
-
-;; org output
-;; (load "~/.emacs.d/personal/org-export-generic.el")
-;; (load "~/.emacs.d/personal/org-export.el")
-;; (require 'org-export)
-;; (require 'org-export-generic)
-;; (eval-after-load "org"
-;;   '(require 'ox-md nil t))
 
 ;; org todo key-words
 (setq org-todo-keywords '((sequence "TODO" "DOING" "CANCELED" "|" "DONE" "FINISH")))
@@ -301,16 +285,6 @@
 ;; powerline
 (prelude-require-package 'powerline)
 (powerline-default-theme)
-;; (setq mode-line-format nil)
-
-;; smart-mode-line
-;; (require 'smart-mode-line)
-;; (require 'rich-minority)
-;; (rich-minority-mode 1)
-;; (setq rm-blacklist (list "company" "Projectile"))
-;; (sml/setup)
-
-(setq request-backend 'url-retrieve)
 
 ;; my key (M-m)
 (define-prefix-command 'my-key-map)

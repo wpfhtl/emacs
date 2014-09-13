@@ -14,7 +14,7 @@ single Emacs environment can largely save your time in switching
 between different softwares and reducing the possibility of being
 distracted by other information (e.g., Facebook, Email, News,
 Youtube). Within Emacs, you can develop your favorite work-flow and
-stick with the same group of key shortcuts for different tasks.
+stick with the same key shortcuts for different tasks.
 
 <!-- As a software being developed for 30 years, -->
 <!-- Emacs can offer your great tools to finish your work in very efficient way. -->
