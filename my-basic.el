@@ -3,7 +3,11 @@
 ;;; Code:
 (add-to-list 'load-path "~/.emacs.d/personal/matlab")
 
-;; basic interface setting
+;; bug in prelude-package (to del in the future)
+(require 'prelude-key-chord)
+(ido-mode 1)
+
+;; basic setting
 (scroll-bar-mode -1)
 (delete-selection-mode 1)
 (setq frame-title-format '((buffer-file-name "%f" (dired-directory dired-directory "%b"))))
@@ -12,6 +16,8 @@
 (server-start)
 (setq kill-buffer-query-functions nil)
 (setq mac-option-modifier 'hyper)
+(setq mac-command-modifier 'meta)
+(setq whitespace-line-column 80000)
 
 ;; PDF->JPG resolution
 (setq doc-view-resolution 800)
@@ -25,19 +31,31 @@
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t)
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
 
-;; helm-swoop
-(require 'helm-swoop)
+;; ediff
+(setq ediff-split-window-function 'split-window-horizontally)
 
-;; multi-file
-(prelude-require-package 'multifiles)
+;; tramp
+(setq tramp-default-method "ssh")
+(setq tramp-chunksize 500)
+(eval-after-load 'tramp '(setenv "SHELL" "/bin/bash"))
+
+;; helm-swoop
+(prelude-require-package 'helm-swoop)
 
 ;; environment variables
 (setenv "PATH"
-        (concat "/usr/local/bin" ":" "/usr/texbin" ":" (getenv "PATH")))
+        (concat "/usr/local/bin:/usr/texbin"
+                ":" (getenv "PATH")
+                ":" (getenv "HOME") "/anaconda/bin"))
 (setenv "PYTHONPATH"
-        (concat "/usr/local/lib/python2.7/site-packages" ":" (getenv "PYTHONPATH")))
+        (concat "/usr/local/lib/python2.7/site-packages"
+                ":" (getenv "PYTHONPATH")
+                ":" (getenv "HOME") "/Code/tool"
+                ":" (getenv "HOME") "/Code/lib"))
 (setenv "DYLD_FALLBACK_LIBRARY_PATH"
-        (concat "/usr/local/cuda/lib" ":" (getenv "HOME") "/anaconda/lib:/usr/local/lib:/usr/lib"))
+        (concat "/usr/local/cuda/lib:/usr/local/lib:/usr/lib"
+                ":" (getenv "HOME") "/anaconda/lib"))
+(setenv "PYTHONDONTWRITEBYTECODE" "1")
 
 ;; ispell
 (setq ispell-program-name "/usr/local/bin/aspell")
@@ -56,7 +74,8 @@
                        (mode . markdown-mode)))
                ("C++" (or
                        (mode . c-mode)
-                       (mode . c++-mode)))
+                       (mode . c++-mode)
+                       (mode . cuda-mode)))
                ("Tex" (or
                        (mode . latex-mode)
                        (mode . plain-tex-mode)
@@ -83,7 +102,8 @@
 (eval-after-load "flyspell"
   '(define-key flyspell-mode-map (kbd "C-;") nil))
 
-;; latex-mode-hook
+;; latex
+(prelude-require-package 'auctex)
 (add-hook 'LaTeX-mode-hook
           (lambda()
             (TeX-PDF-mode t)
@@ -103,10 +123,9 @@
    (quote (((output-dvi style-pstricks) "dvips and gv")
            (output-dvi "xdvi")
            (output-pdf "Skim")
-            ;; (output-pdf "Preview")
            (output-html "xdg-open")))))
 
-;; delete a file but ask for sure
+;; delete a file but ask for double check
 (defun my-delete-file-and-buffer ()
   "Kill the current buffer and deletes the file it is visiting."
   (interactive)
@@ -122,15 +141,13 @@
 ;; buffer-move
 (prelude-require-package 'buffer-move)
 
-;; auctex
-(prelude-require-package 'auctex)
-
 ;; matlab
 (autoload 'matlab-mode "matlab" "Enter Matlab mode." t)
 (setq auto-mode-alist (cons '("\\.m$" . matlab-mode) auto-mode-alist))
 
 ;; matlab-mode-hook
 (defun my-matlab-mode-hook ()
+  "My hook for `matlab-mode'."
   (setq matlab-indent-function t)
   (linum-mode t)
   (auto-fill-mode -1))
@@ -145,8 +162,9 @@
   (setq matlab-shell-command "/usr/bin/matlab")))
 (setq matlab-shell-command-switches '("-nodesktop -nosplash"))
 
-;; update modifying date field in the comment area
+;; update modifying date field in the comment area (for matlab)
 (defun my-matlab-modify-date ()
+  "Update modifying date field in the comment area (for matlab)."
   (interactive)
   (save-excursion
     (let ((time-format "%m-%d-%Y") (pt1) (pt2))
@@ -163,8 +181,9 @@
             (insert (format-time-string time-format (current-time))))
         (message "modify xxx not found")))))
 
-;; update creating date in the comment area
+;; update creating date in the comment area (for matlab)
 (defun my-matlab-create-date ()
+  "Update creating date in the comment area (for matlab)."
   (interactive)
   (save-excursion
     (let ((time-format "%m-%d-%Y") (pt1) (pt2))
@@ -182,6 +201,7 @@
         (message "create xxx not found")))))
 
 (defun my-matlab-save-hook ()
+  "My hook for saving matlab file."
   (if (eq major-mode 'matlab-mode)
       (progn
         (message "%s is matlab-mode" (buffer-file-name))
@@ -189,13 +209,42 @@
 (add-hook 'before-save-hook 'my-matlab-save-hook)
 
 ;; using ipython as the default python console
+(elpy-enable)
 (setq python-shell-interpreter "ipython")
 (setq python-shell-interpreter-args "--pylab")
 
 ;; python-mode-hook
 (defun my-python-mode-hook ()
-  (linum-mode t))
+  "My hook for `python-mode'."
+  (linum-mode t)
+  (flyspell-mode nil))
 (add-hook 'python-mode-hook 'my-python-mode-hook)
+
+(defun my-insert-double-space ()
+  (interactive)
+  (insert " ")
+  (forward-char 2)
+  (insert " "))
+
+(defun my-insert-single-space ()
+  (interactive)
+  (insert " ")
+  (forward-char 1)
+  (insert " "))
+
+(defun my-split-window ()
+  "Split window as 2x3."
+  (interactive)
+  (split-window-right)
+  (split-window-right)
+  (split-window-below)
+  (windmove-right)
+  (split-window-below)
+  (windmove-right)
+  (split-window-below)
+  (balance-windows)
+  (windmove-left)
+  (windmove-left))
 
 ;; python shell (remap up key)
 (define-key comint-mode-map (kbd "<up>") 'comint-previous-matching-input-from-input)
@@ -225,7 +274,7 @@
 
 ;; org key
 (defun my-org-mode-keys ()
-  "my keybindings for org-mode"
+  "My keybindings for `org-mode'."
   (define-key org-mode-map (kbd "<S-up>") 'windmove-up)
   (define-key org-mode-map (kbd "<S-down>") 'windmove-down)
   (define-key org-mode-map (kbd "<S-left>") 'windmove-left)
@@ -241,25 +290,49 @@
 
 ;; my key-binding in prelude mode
 (defun my-prelude-mode-keys ()
-  "my keybindings for prelude-mode"
+  "My keybindings for prelude-mode."
   (define-key prelude-mode-map (kbd "M-o") nil)
   (define-key prelude-mode-map (kbd "<M-S-up>") nil)
   (define-key prelude-mode-map (kbd "<M-S-down>") nil)
   (define-key prelude-mode-map (kbd "<C-S-up>") nil)
-  (define-key prelude-mode-map (kbd "<C-S-down>") nil)
-)
+  (define-key prelude-mode-map (kbd "<C-S-down>") nil))
 (add-hook 'prelude-mode-hook 'my-prelude-mode-keys)
+
+;; cuda-mode
+;; (prelude-require-package 'cude-mode)
+(autoload 'cuda-mode "cuda-mode.el")
+(add-to-list 'auto-mode-alist '("\\.cu\\'" . cuda-mode))
+(add-to-list 'auto-mode-alist '("\\.cuh\\'" . cuda-mode))
+
+(require 'sr-speedbar)
+(speedbar-add-supported-extension ".cu")
+(speedbar-add-supported-extension ".cuh")
+(add-to-list 'speedbar-fetch-etags-parse-list '("\\.cu" . speedbar-parse-c-or-c++tag))
+(add-to-list 'speedbar-fetch-etags-parse-list '("\\.cuh" . speedbar-parse-c-or-c++tag))
+
+;; cuda-mode-hook
+(defun my-cuda-mode-hook ()
+  (linum-mode t))
+(add-hook 'cuda-mode-hook 'my-cuda-mode-hook)
 
 ;; multi-term
 (prelude-require-package 'multi-term)
-
 (defun my-term-mode-keys ()
   "my keybindings for term-mode"
   (define-key term-mode-map (kbd "C-x C-c") nil)
+  (define-key term-mode-map (kbd "C-c C-f") 'term-line-mode)
+  (define-key term-mode-map (kbd "C-c C-k") 'term-char-mode)
   (define-key term-mode-map (kbd "C-a") nil))
+(add-hook 'term-mode-hook
+          (lambda ()
+            (add-to-list 'term-bind-key-alist '("C-c C-f" . term-line-mode))
+            ))
 (add-hook 'term-mode-hook 'my-term-mode-keys)
 (setq multi-term-buffer-name "term"
       multi-term-program "/bin/zsh")
+(add-hook 'term-mode-hook
+          (lambda () (setq truncate-lines 0)))
+(defun term-window-width () 200)
 
 ;; search engine
 (prelude-install-search-engine "googles" "http://scholar.google.com/scholar?q=" "Google Scholar: ")
@@ -283,8 +356,8 @@
       [?\C-s ?\[ ?2 ?0 ?\C-a ?* ?* ?  ?\C-e ?\C-f ?\C-  ?\C-s ?\[ ?2 ?\C-a ?\C-p ?\C-p ?\S-\C-c ?\S-\C-c ?\M-d ?- ?  ?\[ ?X ?\] return ?\C-e])
 
 ;; powerline
-(prelude-require-package 'powerline)
-(powerline-default-theme)
+;; (prelude-require-package 'powerline)
+;; (powerline-default-theme)
 
 ;; my key (M-m)
 (define-prefix-command 'my-key-map)
@@ -299,11 +372,16 @@
 (define-key my-key-map (kbd "s") 'prelude-googles)
 (define-key my-key-map (kbd "d") 'prelude-dblp)
 (define-key my-key-map (kbd "h") 'helm-swoop)
-(define-key my-key-map (kbd "i") 'mf/mirror-region-in-multifile)
+(define-key my-key-map (kbd "i") 'sr-speedbar-toggle)
 (define-key my-key-map (kbd "b") 'helm-mini)
 (define-key my-key-map (kbd "q") 'last-kbd-macro)
 (define-key my-key-map (kbd "c") 'my-matlab-create-date)
 (define-key my-key-map (kbd "f") 'find-name-dired)
+(define-key my-key-map (kbd ",") 'my-insert-double-space)
+(define-key my-key-map (kbd ".") 'my-insert-single-space)
+(define-key my-key-map (kbd "e") 'ediff)
+(define-key my-key-map (kbd "o") 'ace-window)
+(define-key my-key-map (kbd "u") 'my-split-window)
 
 ; global key
 (global-set-key (kbd "<f5>") 'kmacro-set-counter)
