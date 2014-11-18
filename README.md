@@ -26,7 +26,7 @@ which provides a native GUI support for latest Mac OSX.
 
 # Installation
 1. Download and install [Prelude](https://github.com/bbatsov/prelude) as the default Emacs configuration;
-2. Copy `my-basic.el` and `matlab/` to the fold `~/.emacs.d/personal`;
+2. Copy `my-basic.el` and `3rd/` to the fold `~/.emacs.d/personal`;
 
 # Matlab
 I barely use the default Matlab user interface. Instead, I run Matlab in Emacs.

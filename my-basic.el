@@ -1,13 +1,16 @@
 ;;; package --- Summary
 ;;; Commentary:
 ;;; Code:
-(add-to-list 'load-path "~/.emacs.d/personal/matlab")
+(add-to-list 'load-path "~/.emacs.d/personal/3rd")
 
 ;; bug in prelude-package (to del in the future)
 (require 'prelude-key-chord)
+(require 'prelude-latex)
+; (require 'prelude-python)
 (ido-mode 1)
 
 ;; basic setting
+(setq visible-bell -1)
 (scroll-bar-mode -1)
 (delete-selection-mode 1)
 (setq frame-title-format '((buffer-file-name "%f" (dired-directory dired-directory "%b"))))
@@ -24,12 +27,14 @@
 
 ;; multiple-cursor
 (prelude-require-package 'multiple-cursors)
+(require 'change-inner)
 
 ;; package
 (require 'package)
 (package-initialize)
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t)
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+; (add-to-list 'package-archives '("elpy" . "http://jorgenschaefer.github.io/packages/") t)
+; (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
 
 ;; ediff
 (setq ediff-split-window-function 'split-window-horizontally)
@@ -141,6 +146,32 @@
 ;; buffer-move
 (prelude-require-package 'buffer-move)
 
+;; switch between horizontal split and vertical split
+(defun my-toggle-window-split ()
+  (interactive)
+  (if (= (count-windows) 2)
+      (let* ((this-win-buffer (window-buffer))
+             (next-win-buffer (window-buffer (next-window)))
+             (this-win-edges (window-edges (selected-window)))
+             (next-win-edges (window-edges (next-window)))
+             (this-win-2nd (not (and (<= (car this-win-edges)
+                                         (car next-win-edges))
+                                     (<= (cadr this-win-edges)
+                                         (cadr next-win-edges)))))
+             (splitter
+              (if (= (car this-win-edges)
+                     (car (window-edges (next-window))))
+                  'split-window-horizontally
+                'split-window-vertically)))
+        (delete-other-windows)
+        (let ((first-win (selected-window)))
+          (funcall splitter)
+          (if this-win-2nd (other-window 1))
+          (set-window-buffer (selected-window) this-win-buffer)
+          (set-window-buffer (next-window) next-win-buffer)
+          (select-window first-win)
+          (if this-win-2nd (other-window 1))))))
+
 ;; matlab
 (autoload 'matlab-mode "matlab" "Enter Matlab mode." t)
 (setq auto-mode-alist (cons '("\\.m$" . matlab-mode) auto-mode-alist))
@@ -209,6 +240,7 @@
 (add-hook 'before-save-hook 'my-matlab-save-hook)
 
 ;; using ipython as the default python console
+(prelude-require-package 'elpy)
 (elpy-enable)
 (setq python-shell-interpreter "ipython")
 (setq python-shell-interpreter-args "--pylab")
@@ -292,6 +324,7 @@
 (defun my-prelude-mode-keys ()
   "My keybindings for prelude-mode."
   (define-key prelude-mode-map (kbd "M-o") nil)
+  (define-key prelude-mode-map (kbd "C-c s") nil)
   (define-key prelude-mode-map (kbd "<M-S-up>") nil)
   (define-key prelude-mode-map (kbd "<M-S-down>") nil)
   (define-key prelude-mode-map (kbd "<C-S-up>") nil)
@@ -299,34 +332,59 @@
 (add-hook 'prelude-mode-hook 'my-prelude-mode-keys)
 
 ;; cuda-mode
-;; (prelude-require-package 'cude-mode)
-(autoload 'cuda-mode "cuda-mode.el")
+; (prelude-require-package 'cude-mode)
+; (require 'cude-mode)
+; (autoload 'cuda-mode "cuda-mode.el")
 (add-to-list 'auto-mode-alist '("\\.cu\\'" . cuda-mode))
 (add-to-list 'auto-mode-alist '("\\.cuh\\'" . cuda-mode))
 
-(require 'sr-speedbar)
-(speedbar-add-supported-extension ".cu")
-(speedbar-add-supported-extension ".cuh")
-(add-to-list 'speedbar-fetch-etags-parse-list '("\\.cu" . speedbar-parse-c-or-c++tag))
-(add-to-list 'speedbar-fetch-etags-parse-list '("\\.cuh" . speedbar-parse-c-or-c++tag))
+;; speedbar
+; (prelude-require-package'sr-speedbar)
+; (speedbar-add-supported-extension ".cu")
+; (speedbar-add-supported-extension ".cuh")
+; (add-to-list 'speedbar-fetch-etags-parse-list '("\\.cu" . speedbar-parse-c-or-c++tag))
+; (add-to-list 'speedbar-fetch-etags-parse-list '("\\.cuh" . speedbar-parse-c-or-c++tag))
 
 ;; cuda-mode-hook
+; (prelude-require-package 'ggtags)
 (defun my-cuda-mode-hook ()
-  (linum-mode t))
+  (linum-mode t)
+  (ggtags-mode t))
 (add-hook 'cuda-mode-hook 'my-cuda-mode-hook)
+
+;; c++-mode hook
+(defun my-c++-mode-hook ()
+  "My c++ mode hook."
+  (linum-mode t)
+  (ggtags-mode t))
+(add-hook 'c++-mode-hook 'my-c++-mode-hook)
+
+;; c-mode hook
+(defun my-c-mode-hook ()
+  "My c mode hook."
+  (linum-mode t)
+  (ggtags-mode t))
+(add-hook 'c-mode-hook 'my-c-mode-hook)
 
 ;; multi-term
 (prelude-require-package 'multi-term)
+(defun term-send-esc ()
+  "Send ESC in term mode."
+  (interactive)
+  (term-send-raw-string "\C-x\C-c"))
 (defun my-term-mode-keys ()
-  "my keybindings for term-mode"
-  (define-key term-mode-map (kbd "C-x C-c") nil)
+  "My keybindings for term-mode."
   (define-key term-mode-map (kbd "C-c C-f") 'term-line-mode)
   (define-key term-mode-map (kbd "C-c C-k") 'term-char-mode)
   (define-key term-mode-map (kbd "C-a") nil))
 (add-hook 'term-mode-hook
           (lambda ()
             (add-to-list 'term-bind-key-alist '("C-c C-f" . term-line-mode))
-            ))
+            (add-to-list 'term-bind-key-alist '("C-c C-e" . term-send-esc))))
+;; (setq term-unbind-key-list '("C-x C-c"))
+;;                              "C-h"
+;;                              "M-x"
+;;                              "C-z"))
 (add-hook 'term-mode-hook 'my-term-mode-keys)
 (setq multi-term-buffer-name "term"
       multi-term-program "/bin/zsh")
@@ -334,9 +392,23 @@
           (lambda () (setq truncate-lines 0)))
 (defun term-window-width () 200)
 
+(add-hook 'markdown-mode-hook
+          (lambda ()
+            (visual-line-mode 1)))
+
+;; show file path in minibuffer
+(defun my-show-file-name ()
+  "Show the full path file name in the minibuffer."
+  (interactive)
+  (message (buffer-file-name)))
+
 ;; search engine
 (prelude-install-search-engine "googles" "http://scholar.google.com/scholar?q=" "Google Scholar: ")
 (prelude-install-search-engine "dblp" "http://www.dblp.org/search/index.php#query=" "DBLP: ")
+
+;; cscope
+;; (require 'xcscope)
+;; (cscope-setup)
 
 ;; sync Org files with evernote through geeknote API every 2 hours
 ;; (defun geeknote-sync ()
@@ -351,37 +423,48 @@
   (eshell-command
    (format "~/Code/script/core/timebar -d 1800")))
 
-;; my macro
-(fset 'last-kbd-macro
-      [?\C-s ?\[ ?2 ?0 ?\C-a ?* ?* ?  ?\C-e ?\C-f ?\C-  ?\C-s ?\[ ?2 ?\C-a ?\C-p ?\C-p ?\S-\C-c ?\S-\C-c ?\M-d ?- ?  ?\[ ?X ?\] return ?\C-e])
-
 ;; powerline
-;; (prelude-require-package 'powerline)
-;; (powerline-default-theme)
+(require 'powerline)
+(powerline-default-theme)
 
-;; my key (M-m)
+;; my key starts with (M-m)
 (define-prefix-command 'my-key-map)
 (global-set-key (kbd "M-m") 'my-key-map)
+
+;; my key for shell
 (define-key my-key-map (kbd "l") 'matlab-shell)
-(define-key my-key-map (kbd "p") 'python-shell-switch-to-shell)
+;; (define-key my-key-map (kbd "p") 'python-shell-switch-to-shell)
+(define-key my-key-map (kbd "p") 'elpy-shell-switch-to-shell)
 (define-key my-key-map (kbd "m") 'multi-term)
 (define-key my-key-map (kbd "n") 'multi-term-next)
-(define-key my-key-map (kbd "T") 'mode-line-timer-start)
-(define-key my-key-map (kbd "t") 'timebar-run)
+
+;; my key for coding
+(define-key my-key-map (kbd "t") 'git-timemachine)
 (define-key my-key-map (kbd "g") 'rgrep)
-(define-key my-key-map (kbd "s") 'prelude-googles)
-(define-key my-key-map (kbd "d") 'prelude-dblp)
 (define-key my-key-map (kbd "h") 'helm-swoop)
-(define-key my-key-map (kbd "i") 'sr-speedbar-toggle)
+(define-key my-key-map (kbd "s") 'sr-speedbar-toggle)
 (define-key my-key-map (kbd "b") 'helm-mini)
+(define-key my-key-map (kbd "f") 'find-name-dired)
+(define-key my-key-map (kbd "d") 'ediff)
+
+;; my key for editing
 (define-key my-key-map (kbd "q") 'last-kbd-macro)
 (define-key my-key-map (kbd "c") 'my-matlab-create-date)
-(define-key my-key-map (kbd "f") 'find-name-dired)
 (define-key my-key-map (kbd ",") 'my-insert-double-space)
 (define-key my-key-map (kbd ".") 'my-insert-single-space)
-(define-key my-key-map (kbd "e") 'ediff)
+(define-key my-key-map (kbd "i") 'change-inner)
+(define-key my-key-map (kbd "o") 'change-outer)
+
+;; my key for window management
 (define-key my-key-map (kbd "o") 'ace-window)
 (define-key my-key-map (kbd "u") 'my-split-window)
+(define-key my-key-map (kbd "|") 'my-toggle-window-split)
+(define-key my-key-map (kbd "a") 'my-show-file-name)
+
+;; my key for web
+(define-key my-key-map (kbd "G") 'prelude-googles)
+(define-key my-key-map (kbd "D") 'prelude-dblp)
+(define-key my-key-map (kbd "T") 'timebar-run)
 
 ; global key
 (global-set-key (kbd "<f5>") 'kmacro-set-counter)
