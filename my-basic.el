@@ -513,7 +513,7 @@
             (ggtags-mode t))) ; maybe need call
 
 ;; speedbar
-(prelude-require-package'sr-speedbar)
+; (prelude-require-package'sr-speedbar)
 ; (speedbar-add-supported-extension ".cu")
 ; (speedbar-add-supported-extension ".cuh")
 ; (add-to-list 'speedbar-fetch-etags-parse-list '("\\.cu" . speedbar-parse-c-or-c++tag))
