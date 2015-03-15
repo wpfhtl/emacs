@@ -12,7 +12,7 @@
 
 ;; basic setting
 (setq visible-bell -1)
-(scroll-bar-mode -1)
+(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 (delete-selection-mode 1)
 (setq frame-title-format '((buffer-file-name "%f" (dired-directory dired-directory "%b"))))
 (setq-default truncate-lines -1)
@@ -22,17 +22,31 @@
 (setq mac-command-modifier 'meta)
 (setq whitespace-line-column 80000)
 (setq doc-view-resolution 800)
+(set-default-font "Monaco 12")
+(fringe-mode 0)
+(set-fringe-style '(0 . 0))
+
+;; tramp
+(eval-after-load 'tramp '(setenv "SHELL" "/bin/bash"))
+(setq tramp-default-method "ssh")
+(setq tramp-chunksize 500)
+
+;; disable git backend to speed up sshfs file load among other things
+(setq vc-handled-backends (quote (RCS CVS SVN SCCS Bzr Hg Mtn Arch)))
 
 ;; save desktop only on mac
 (cond
  ((string-equal system-type "darwin")
   (desktop-save-mode 1))
  ((string-equal system-type "gnu/linux")
-  (desktop-save-mode 0)))
+  (desktop-save-mode 1)))
+
+;; ace search
+(prelude-require-package 'ace-isearch)
+(global-ace-isearch-mode 1)
 
 ;; multiple-cursor
 (prelude-require-package 'multiple-cursors)
-(require 'change-inner)
 
 ;; package
 (require 'package)
@@ -51,13 +65,25 @@
                 ":" (getenv "PATH")
                 ":" (getenv "HOME") "/anaconda/bin"))
 (setenv "PYTHONPATH"
-        (concat "/usr/local/lib/python2.7/site-packages"
-                ":" (getenv "PYTHONPATH")
-                ":" (getenv "HOME") "/Code/py"))
+        (concat (getenv "PYTHONPATH")
+                ":" (getenv "HOME") "/work/py"
+                ":" "/usr/local/ia/lib/python2.7/site-packages"))
 (setenv "DYLD_FALLBACK_LIBRARY_PATH"
         (concat "/usr/local/cuda/lib:/usr/local/lib:/usr/lib"
                 ":" (getenv "HOME") "/anaconda/lib"))
 (setenv "PYTHONDONTWRITEBYTECODE" "1")
+(setenv "s3" "/ssh:feng@skyserver3k:")
+(setenv "cvt" "/ssh:root@www.cvtell.com:")
+(setenv "ec2" "/ssh:ubuntu@54.69.53.225:")
+(setenv "work" (concat (getenv "HOME") "/work/"))
+(setenv "caf" (concat (getenv "HOME") "/work/py/test/caf/"))
+(setenv "caffe" (concat (getenv "HOME") "/work/tool/caffe/"))
+(setenv "cvtell" (concat (getenv "HOME") "/work/web/cvtell/"))
+(setenv "bgl" (concat (getenv "HOME") "/work/pub/2015_iccv_bgl/tex/"))
+(setenv "cv" (concat (getenv "HOME") "/work/pub/cv/"))
+(setenv "misc" (concat (getenv "HOME") "/work/pub/misc/"))
+(setenv "car" (concat (getenv "HOME") "/work/save/car/caffe/"))
+(setenv "food" (concat (getenv "HOME") "/work/save/food/caffe/"))
 
 ;; ispell
 (setq ispell-program-name
@@ -70,12 +96,20 @@
 ;; dired
 (setq dired-listing-switches "-alh")
 
+;; ace-jump only search filename in dired
+(add-hook 'dired-mode-hook
+          (lambda ()
+            (setq-local ace-jump-search-filter
+                        (lambda ()
+                          (get-text-property (point) 'dired-filename)))))
+
 ;; ibuffer
 (require 'ibuffer)
 (setq ibuffer-saved-filter-groups
       (quote (("default"
                ("Dired" (mode . dired-mode))
                ("Matlab" (mode . matlab-mode))
+               ("Python" (mode . python-mode))
                ("Org" (or
                        (mode . org-mode)
                        (mode . markdown-mode)))
@@ -87,12 +121,11 @@
                        (mode . latex-mode)
                        (mode . plain-tex-mode)
                        (mode . bibtex-mode)))
-               ("Html" (or
-                        (mode . html-mode)
-                        (mode . nxml-mode)
-                        (mode . css-mode)))
+               ("Web" (or
+                       (mode . html-mode)
+                       (mode . nxml-mode)
+                       (mode . css-mode)))
                ("Lisp" (mode . emacs-lisp-mode))
-               ("Python" (mode . python-mode))
                ("Shell" (mode . sh-mode))
                ("Console" (name . "^\\*.*\\*$"))
                ))))
@@ -116,13 +149,16 @@
             (TeX-PDF-mode t)
             (setq TeX-save-query nil)
             (toggle-truncate-lines)))
-(add-hook 'latex-mode-hook 'turn-on-reftex)
+;; (add-hook 'latex-mode-hook 'turn-on-reftex)
 (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
 (setq reftex-plug-into-auctex t)
 
 ;; read in PDF
 (custom-set-variables
  '(LaTeX-command "latex -synctex=1")
+ '(font-latex-math-environments
+   (quote
+    ("display" "displaymath" "equation" "eqnarray" "gather" "multline" "align" "alignat" "xalignat" "xxalignat" "flalign" "aligns")))
  '(TeX-view-program-list
    (quote (("Skim" "/Applications/Skim.app/Contents/SharedSupport/displayline -r %n %o %b"))))
  '(TeX-view-program-selection
@@ -130,6 +166,7 @@
            (output-dvi "xdvi")
            (output-pdf "Skim")
            (output-html "xdg-open")))))
+(setq-default TeX-master nil)
 
 ;; delete a file but ask for double check
 (defun my-delete-file-and-buffer ()
@@ -182,7 +219,7 @@
 (defun my-matlab-mode-hook ()
   "My hook for `matlab-mode'."
   (setq matlab-indent-function t)
-  (linum-mode t)
+  ;; (linum-mode t)
   (auto-fill-mode -1))
 (add-hook 'matlab-mode-hook 'my-matlab-mode-hook)
 
@@ -296,20 +333,72 @@
 ;; python-mode-hook
 (add-hook 'python-mode-hook
           (lambda()
-            (linum-mode t)
+            ;; (linum-mode t)
             (define-key elpy-mode-map (kbd "<M-S-up>") 'move-text-up)
             (define-key elpy-mode-map (kbd "<M-S-down>") 'move-text-down)))
 
+;; update modifying date field in the comment area (for matlab)
+(defun my-sh-modify-date ()
+  "Update modifying date field in the comment area (for python)."
+  (interactive)
+  (save-excursion
+    (let ((time-format "%m-%d-%Y") (pt1) (pt2))
+      (goto-char (point-min))
+      (setq pt1 (search-forward "  modify" nil t))
+      (if pt1
+          (progn
+            (message "done")
+            (search-forward "gmail.com), ")
+            (setq pt1 (point))
+            (end-of-line)
+            (setq pt2 (point))
+            (delete-region pt1 pt2)
+            (insert (format-time-string time-format (current-time))))
+        (message "modify xxx not found")))))
+
+;; update creating date in the comment area (for matlab)
+(defun my-sh-create-date ()
+  "Update creating date in the comment area (for matlab)."
+  (interactive)
+  (save-excursion
+    (let ((time-format "%m-%d-%Y") (pt1) (pt2))
+      (goto-char (point-min))
+      (setq pt1 (search-forward "#   create" nil t))
+      (if pt1
+          (progn
+            (message "done")
+            (search-forward "gmail.com), ")
+            (setq pt1 (point))
+            (end-of-line)
+            (setq pt2 (point))
+            (delete-region pt1 pt2)
+            (insert (format-time-string time-format (current-time))))
+        (message "create xxx not found")))))
+
+(defun my-sh-save-hook ()
+  "My hook for saving python file (*.py)."
+  (if (eq major-mode 'sh-mode)
+      (progn
+        (message "%s is sh-mode" (buffer-file-name))
+        (my-sh-modify-date))))
+(add-hook 'before-save-hook 'my-sh-save-hook)
+
+;; sh-mode-hook
+;; (add-hook 'sh-mode-hook
+;;           (lambda()
+;;             (linum-mode t)
+;;             ))
+
 ;; my utility functions
 (defun my-insert-double-space ()
-  "Insert space so that a|bc -> a b c|."
+  "Insert space so that a|bc -> a bc |."
   (interactive)
   (insert " ")
   (forward-char 2)
   (insert " "))
 
 (defun my-insert-single-space ()
-  "Insert space so that a|bc -> a b c|."
+  "Insert space so that a|bc -> a b |c."
   (interactive)
   (insert " ")
   (forward-char 1)
@@ -345,6 +434,13 @@
 (eval-after-load "python"
   '(define-key python-mode-map (kbd "C-c C-p") nil))
 
+;; org file
+;; (add-to-list 'auto-mode-alist '("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode))
+
+;; org agenda file
+(setq org-agenda-files (list "~/work/my/org/day.org"
+                             "~/work/my/org/season.org"))
+
 ;; org todo key-words
 (setq org-todo-keywords '((sequence "TODO" "DOING" "CANCELED" "|" "DONE" "FINISH")))
 
@@ -377,8 +473,17 @@
   (define-key org-mode-map (kbd "<H-right>") 'org-shiftright))
 (add-hook 'org-mode-hook 'my-org-mode-keys)
 
+;; start org clock when the state is switched to "doing"
+(defun org-clock-in-if-doing ()
+  "Clock in when the task is marked STARTED."
+  (when (and (string= org-state "DOING")
+             (not (string= org-last-state org-state)))
+    (org-clock-in)))
+(add-hook 'org-after-todo-state-change-hook
+          'org-clock-in-if-doing)
+
 ;; initial visibility for org file
-(setq org-startup-folded nil)
+;; (setq org-startup-folded nil)
 
 ;; my key-binding in prelude mode
 (defun my-prelude-mode-keys ()
@@ -396,18 +501,19 @@
 (add-to-list 'auto-mode-alist '("\\.jl\\'" . julia-mode))
 
 ;; cuda-mode
-; (prelude-require-package 'cude-mode)
-; (require 'cude-mode)
-; (autoload 'cuda-mode "cuda-mode.el")
+;; (prelude-require-package 'cude-mode)
+;; (require 'cude-mode)
+;; (autoload 'cuda-mode "cuda-mode.el")
+(prelude-require-package 'ggtags)
 (add-to-list 'auto-mode-alist '("\\.cu\\'" . cuda-mode))
 (add-to-list 'auto-mode-alist '("\\.cuh\\'" . cuda-mode))
 (add-hook 'cuda-mode-hook
           (lambda()
-            (linum-mode t)
-            (ggtags-mode t))) ; maybe need call (prelude-require-package 'ggtags)
+            ;; (linum-mode t)
+            (ggtags-mode t))) ; maybe need call
 
 ;; speedbar
-; (prelude-require-package'sr-speedbar)
+(prelude-require-package'sr-speedbar)
 ; (speedbar-add-supported-extension ".cu")
 ; (speedbar-add-supported-extension ".cuh")
 ; (add-to-list 'speedbar-fetch-etags-parse-list '("\\.cu" . speedbar-parse-c-or-c++tag))
@@ -416,13 +522,13 @@
 ;; c++-mode
 (add-hook 'c++-mode-hook
           (lambda()
-            (linum-mode t)
+            ;; (linum-mode t)
             (ggtags-mode t)))
 
 ;; c-mode
 (add-hook 'c-mode-hook
           (lambda()
-            (linum-mode t)
+            ;; (linum-mode t)
             (ggtags-mode t)))
 
 ;; multi-term
@@ -431,27 +537,11 @@
   "Send C-x C-c in term mode."
   (interactive)
   (term-send-raw-string "\C-x\C-c"))
-(defun term-send-C-x ()
-  "Send ESC in term mode."
-  (interactive)
-  (term-send-raw-string "\C-x"))
-(defun term-send-C-c ()
-  "Send ESC in term mode."
-  (interactive)
-  (term-send-raw-string "\C-c"))
 (add-hook 'term-mode-hook
           (lambda ()
             (add-to-list 'term-bind-key-alist '("C-c C-f" . term-line-mode))
             (add-to-list 'term-bind-key-alist '("C-c C-k" . term-char-mode))
-            ;; (add-to-list 'term-bind-key-alist '("C-x" . term-send-C-x))
-            ;; (add-to-list 'term-bind-key-alist '("C-c" . term-send-C-c))
-            (add-to-list 'term-bind-key-alist '("C-c C-e" . term-send-C-x-C-c))
-            ;; (add-to-list 'term-unbind-key-list "C-c C-c")
-            ))
-;; (setq term-unbind-key-list '("C-x C-c"))
-;;                              "C-h"
-;;                              "M-x"
-;;                              "C-z"))
+            (add-to-list 'term-bind-key-alist '("C-c C-e" . term-send-C-x-C-c))))
 
 ;; default shell form multi-term
 (cond
@@ -462,29 +552,15 @@
 
 (add-hook 'term-mode-hook
           (lambda () (setq truncate-lines 0)))
-(defun term-window-width () 200)
 
-;; better visualization for markdown file
+;; better visualization for markdown and text file
 (add-hook 'markdown-mode-hook
           (lambda ()
             (visual-line-mode 1)))
 
-;; show file path in mini-buffer
-(defun my-show-file-name ()
-  "Show the full path file name in the minibuffer."
-  (interactive)
-  (message (buffer-file-name)))
-
 ;; search engine
 (prelude-install-search-engine "googles" "http://scholar.google.com/scholar?q=" "Google Scholar: ")
 (prelude-install-search-engine "dblp" "http://www.dblp.org/search/index.php#query=" "DBLP: ")
-
-;; sync Org files with evernote through geeknote API every 2 hours
-;; (defun geeknote-sync ()
-;;   (interactive)
-;;   (eshell-command
-;;    (format "python ~/Code/script/geeknote/gnsync.py --mask \\*.md --path ~/Code/org --format markdown --logpath ~/Code/script/geeknote/geeknote.log --notebook Emacs")))
-;; (run-with-timer 0 (* 120 60) 'geeknote-sync)
 
 ;; timebar (30 mins counter down) only used for mac
 ;; timebar can be download at https://itunes.apple.com/us/app/timebar/id617829225?mt=12
@@ -492,11 +568,16 @@
   "Run timebar for 30 mins."
   (interactive)
   (eshell-command
-   (format "~/Code/script/core/timebar -d 1800")))
+   (format "~/work/dot/zsh/timebar -d 1800")))
 
 ;; powerline
 (require 'powerline)
 (powerline-default-theme)
+
+;; workaround for incorrect render on Emacs 24.4
+(add-hook 'desktop-after-read-hook 'powerline-reset)
+(defadvice desktop-kill(before clear-power-line-cache () activate)
+  (set-frame-parameter nil 'powerline-cache nil))
 
 ;; my key starts with (M-m)
 (define-prefix-command 'my-key-map)
@@ -515,30 +596,38 @@
 (define-key my-key-map (kbd "s") 'sr-speedbar-toggle)
 (define-key my-key-map (kbd "b") 'helm-mini)
 (define-key my-key-map (kbd "f") 'find-name-dired)
-(define-key my-key-map (kbd "d") 'ediff-buffers)
+(define-key my-key-map (kbd "d") '(lambda () (interactive) (find-file "~/work/my/org/day.org")))
+(define-key my-key-map (kbd "k") 'magit-status)
+(define-key my-key-map (kbd "j") 'magit-file-log)
+(define-key my-key-map (kbd "J") 'magit-log)
 
 ;; my key for editing
 (define-key my-key-map (kbd "q") 'last-kbd-macro)
-(define-key my-key-map (kbd "C") 'my-matlab-create-date)
+(define-key my-key-map (kbd "c") 'my-matlab-create-date)
+(add-hook 'matlab-mode-hook
+          (lambda () (local-set-key (kbd "M-m c") 'my-matlab-create-date)))
+(add-hook 'python-mode-hook
+          (lambda () (local-set-key (kbd "M-m c") 'my-python-create-date)))
+(add-hook 'sh-mode-hook
+          (lambda () (local-set-key (kbd "M-m c") 'my-sh-create-date)))
 (define-key my-key-map (kbd "c") 'my-python-create-date)
 (define-key my-key-map (kbd ",") 'my-insert-double-space)
 (define-key my-key-map (kbd ".") 'my-insert-single-space)
-(define-key my-key-map (kbd "i") 'change-inner)
-(define-key my-key-map (kbd "o") 'change-outer)
 
 ;; my key for window management
 (define-key my-key-map (kbd "o") 'ace-window)
+(define-key my-key-map (kbd "O") 'ace-swap-window)
 (define-key my-key-map (kbd "u") 'my-split-window-2-3)
 (define-key my-key-map (kbd "U") 'my-split-window-2-2)
 (define-key my-key-map (kbd "|") 'my-toggle-window-split)
-(define-key my-key-map (kbd "a") 'my-show-file-name)
+(define-key my-key-map (kbd "a") 'prelude-copy-file-name-to-clipboard)
 
 ;; my key for web
 (define-key my-key-map (kbd "G") 'prelude-googles)
 (define-key my-key-map (kbd "D") 'prelude-dblp)
 (define-key my-key-map (kbd "T") 'timebar-run)
 
-; global key
+;; global key
 (global-set-key (kbd "<f5>") 'kmacro-set-counter)
 (global-set-key (kbd "C-;") 'comment-region)
 (global-set-key (kbd "C-:") 'uncomment-region)
