@@ -39,7 +39,7 @@
  ((string-equal system-type "darwin")
   (desktop-save-mode 1))
  ((string-equal system-type "gnu/linux")
-  (desktop-save-mode 1)))
+  (desktop-save-mode 0)))
 
 ;; ace search
 (prelude-require-package 'ace-isearch)
@@ -125,8 +125,9 @@
                        (mode . html-mode)
                        (mode . nxml-mode)
                        (mode . css-mode)))
-               ("Lisp" (mode . emacs-lisp-mode))
-               ("Shell" (mode . sh-mode))
+               ("Shell" (or
+                         (mode . emacs-lisp-mode)
+                         (mode . sh-mode)))
                ("Console" (name . "^\\*.*\\*$"))
                ))))
 (add-hook 'ibuffer-mode-hook
@@ -149,7 +150,6 @@
             (TeX-PDF-mode t)
             (setq TeX-save-query nil)
             (toggle-truncate-lines)))
-;; (add-hook 'latex-mode-hook 'turn-on-reftex)
 (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
 (setq reftex-plug-into-auctex t)
 
@@ -284,7 +284,7 @@
 (setq python-shell-interpreter "ipython")
 (setq python-shell-interpreter-args "--pylab")
 
-;; update modifying date field in the comment area (for matlab)
+;; update modifying date field in the comment area (for python)
 (defun my-python-modify-date ()
   "Update modifying date field in the comment area (for python)."
   (interactive)
@@ -303,9 +303,9 @@
             (insert (format-time-string time-format (current-time))))
         (message "modify xxx not found")))))
 
-;; update creating date in the comment area (for matlab)
+;; update creating date in the comment area (for python)
 (defun my-python-create-date ()
-  "Update creating date in the comment area (for matlab)."
+  "Update creating date in the comment area (for python)."
   (interactive)
   (save-excursion
     (let ((time-format "%m-%d-%Y") (pt1) (pt2))
@@ -330,16 +330,9 @@
         (my-python-modify-date))))
 (add-hook 'before-save-hook 'my-python-save-hook)
 
-;; python-mode-hook
-(add-hook 'python-mode-hook
-          (lambda()
-            ;; (linum-mode t)
-            (define-key elpy-mode-map (kbd "<M-S-up>") 'move-text-up)
-            (define-key elpy-mode-map (kbd "<M-S-down>") 'move-text-down)))
-
-;; update modifying date field in the comment area (for matlab)
+;; update modifying date field in the comment area (for sh)
 (defun my-sh-modify-date ()
-  "Update modifying date field in the comment area (for python)."
+  "Update modifying date field in the comment area (for sh)."
   (interactive)
   (save-excursion
     (let ((time-format "%m-%d-%Y") (pt1) (pt2))
@@ -356,9 +349,9 @@
             (insert (format-time-string time-format (current-time))))
         (message "modify xxx not found")))))
 
-;; update creating date in the comment area (for matlab)
+;; update creating date in the comment area (for sh)
 (defun my-sh-create-date ()
-  "Update creating date in the comment area (for matlab)."
+  "Update creating date in the comment area (for sh)."
   (interactive)
   (save-excursion
     (let ((time-format "%m-%d-%Y") (pt1) (pt2))
@@ -382,12 +375,6 @@
         (message "%s is sh-mode" (buffer-file-name))
         (my-sh-modify-date))))
 (add-hook 'before-save-hook 'my-sh-save-hook)
-
-;; sh-mode-hook
-;; (add-hook 'sh-mode-hook
-;;           (lambda()
-;;             (linum-mode t)
-;;             ))
 
 ;; my utility functions
 (defun my-insert-double-space ()
@@ -433,9 +420,6 @@
 ;; python mode (save C-C C-p for other use)
 (eval-after-load "python"
   '(define-key python-mode-map (kbd "C-c C-p") nil))
-
-;; org file
-;; (add-to-list 'auto-mode-alist '("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode))
 
 ;; org agenda file
 (setq org-agenda-files (list "~/work/my/org/day.org"
@@ -553,7 +537,7 @@
 (add-hook 'term-mode-hook
           (lambda () (setq truncate-lines 0)))
 
-;; better visualization for markdown and text file
+;; better visualization for markdown file
 (add-hook 'markdown-mode-hook
           (lambda ()
             (visual-line-mode 1)))
