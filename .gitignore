@@ -1,0 +1,4 @@
+.DS_Store
+*.elc
+aspell_feng
+init.el
