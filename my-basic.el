@@ -5,6 +5,14 @@
 ;; additional packages are available in the folder "3rd"
 (add-to-list 'load-path "~/.emacs.d/personal/3rd")
 
+<<<<<<< HEAD
+=======
+;; bug in prelude-package (to delete in the future)
+(require 'prelude-key-chord)
+(require 'prelude-latex)
+(ido-mode 1)
+
+>>>>>>> 0801bdb374b17dd306a075647939d1dd70c91a70
 ;; basic setting
 (setq visible-bell -1)
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
@@ -20,11 +28,14 @@
 (set-default-font "Monaco 12")
 (fringe-mode 0)
 (set-fringe-style '(0 . 0))
+<<<<<<< HEAD
 (ido-mode 1)
 
 ;; enable prelude sub-modules
 (require 'prelude-key-chord)
 (require 'prelude-latex)
+=======
+>>>>>>> 0801bdb374b17dd306a075647939d1dd70c91a70
 
 ;; tramp
 (eval-after-load 'tramp '(setenv "SHELL" "/bin/bash"))
@@ -78,9 +89,12 @@
 (setenv "work" (concat (getenv "HOME") "/work/"))
 (setenv "caf" (concat (getenv "HOME") "/work/py/test/caf/"))
 (setenv "caffe" (concat (getenv "HOME") "/work/tool/caffe/"))
+<<<<<<< HEAD
 (setenv "caffeP" (concat (getenv "HOME") "/work/tool/caffeP/"))
 (setenv "gpu" (concat (getenv "HOME") "/work/tool/caffe_gpu/"))
 (setenv "p2p" (concat (getenv "HOME") "/work/tool/caffe_p2p/"))
+=======
+>>>>>>> 0801bdb374b17dd306a075647939d1dd70c91a70
 (setenv "cvtell" (concat (getenv "HOME") "/work/web/cvtell/"))
 (setenv "bgl" (concat (getenv "HOME") "/work/pub/2015_iccv_bgl/tex/"))
 (setenv "cv" (concat (getenv "HOME") "/work/pub/cv/"))
@@ -110,8 +124,17 @@
 (require 'ibuffer)
 (setq ibuffer-saved-filter-groups
       (quote (("default"
+<<<<<<< HEAD
                ("Image" (mode . image-mode))
                ("Python" (mode . python-mode))
+=======
+               ("Dired" (mode . dired-mode))
+               ("Matlab" (mode . matlab-mode))
+               ("Python" (mode . python-mode))
+               ("Org" (or
+                       (mode . org-mode)
+                       (mode . markdown-mode)))
+>>>>>>> 0801bdb374b17dd306a075647939d1dd70c91a70
                ("C++" (or
                        (mode . c-mode)
                        (mode . c++-mode)
@@ -120,10 +143,13 @@
                        (mode . latex-mode)
                        (mode . plain-tex-mode)
                        (mode . bibtex-mode)))
+<<<<<<< HEAD
                ("Matlab" (mode . matlab-mode))
                ("Org" (or
                        (mode . org-mode)
                        (mode . markdown-mode)))
+=======
+>>>>>>> 0801bdb374b17dd306a075647939d1dd70c91a70
                ("Web" (or
                        (mode . html-mode)
                        (mode . nxml-mode)
@@ -131,7 +157,10 @@
                ("Shell" (or
                          (mode . emacs-lisp-mode)
                          (mode . sh-mode)))
+<<<<<<< HEAD
                ("Dired" (mode . dired-mode))
+=======
+>>>>>>> 0801bdb374b17dd306a075647939d1dd70c91a70
                ("Console" (name . "^\\*.*\\*$"))
                ))))
 (add-hook 'ibuffer-mode-hook
@@ -546,12 +575,15 @@
           (lambda ()
             (visual-line-mode 1)))
 
+<<<<<<< HEAD
 ;; revert buffer without confirmation
 (defun revert-buffer-no-confirm ()
   "Revert buffer without confirmation."
   (interactive)
   (revert-buffer t t))
 
+=======
+>>>>>>> 0801bdb374b17dd306a075647939d1dd70c91a70
 ;; search engine
 (prelude-install-search-engine "googles" "http://scholar.google.com/scholar?q=" "Google Scholar: ")
 (prelude-install-search-engine "dblp" "http://www.dblp.org/search/index.php#query=" "DBLP: ")
@@ -586,7 +618,10 @@
 ;; my key for coding
 (define-key my-key-map (kbd "t") 'git-timemachine)
 (define-key my-key-map (kbd "g") 'rgrep)
+<<<<<<< HEAD
 (define-key my-key-map (kbd "e") 'ediff-files)
+=======
+>>>>>>> 0801bdb374b17dd306a075647939d1dd70c91a70
 (define-key my-key-map (kbd "h") 'helm-swoop)
 (define-key my-key-map (kbd "s") 'sr-speedbar-toggle)
 (define-key my-key-map (kbd "b") 'helm-mini)
@@ -598,7 +633,10 @@
 
 ;; my key for editing
 (define-key my-key-map (kbd "q") 'last-kbd-macro)
+<<<<<<< HEAD
 (define-key my-key-map (kbd "r") 'revert-buffer-no-confirm)
+=======
+>>>>>>> 0801bdb374b17dd306a075647939d1dd70c91a70
 (define-key my-key-map (kbd "c") 'my-matlab-create-date)
 (add-hook 'matlab-mode-hook
           (lambda () (local-set-key (kbd "M-m c") 'my-matlab-create-date)))

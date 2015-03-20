@@ -28,12 +28,15 @@ which provides a native GUI support for latest Mac OSX.
 1. Download and install [Prelude](https://github.com/bbatsov/prelude) as the default Emacs configuration;
 2. Copy `my-basic.el` and `3rd/` to the fold `~/.emacs.d/personal`;
 
+<<<<<<< HEAD
 You are ready to rock.
 
 # Terminal
 
 Couple the macro with a terminal embedded in your editor, and you're poised to be the most powerful developer in the office. Once your terminal is contained within your editor (and once you've spawned several simultaneous terminals in there too), you'll realize you no longer have reason to live outside the editor (though your spouse may disagree).
 
+=======
+>>>>>>> 0801bdb374b17dd306a075647939d1dd70c91a70
 # Matlab
 I barely use the default Matlab user interface. Instead, I run Matlab in Emacs.
 To start the Matlab shell in Emacs, you could type `M-m l` using my Emacs configuration.

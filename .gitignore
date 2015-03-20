@@ -1,4 +1,14 @@
+<<<<<<< HEAD
 .DS_Store
 *.elc
 aspell_feng
 init.el
+=======
+*.mexa64
+*.mexmaci64
+*.eps
+*.mat
+aspell_feng
+aspell*
+.DS_Store
+>>>>>>> 0801bdb374b17dd306a075647939d1dd70c91a70
